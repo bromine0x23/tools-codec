@@ -1,0 +1,164 @@
+doctype html
+html(lang='zh-CN')
+	head
+		meta(charset='utf-8')
+		meta(name='viewport' content='width=device-width, initial-scale=1, shrink-to-fit=no')
+		meta(http-equiv='X-UA-Compatible' content='ie=edge,chrome=1')
+		title 编解码器・实用工具
+		link(rel='stylesheet' href='webjars/bootstrap/4.4.1/css/bootstrap.min.css')
+		script(src='webjars/jquery/3.4.1/jquery.min.js')
+		script(src='webjars/popper.js/1.15.0/umd/popper.min.js')
+		script(src='webjars/bootstrap/4.4.1/js/bootstrap.min.js')
+		script(defer src='webjars/font-awesome/5.12.0/js/fontawesome.min.js')
+		script(defer src='webjars/font-awesome/5.12.0/js/solid.min.js')
+		script.
+			var CodecsController = (function () {
+				var BASE_URL = '/api/codecs';
+				return {
+					index: function () {
+						return $.ajax({
+							type: 'GET',
+							url: BASE_URL,
+							dataType: 'json'
+						});
+					},
+					encode: function(codecId, variantId, data) {
+						var url = null;
+						if (variantId !== undefined) {
+							url = BASE_URL + '/' + codecId + '/' + variantId + '/encode'
+						} else {
+							url = BASE_URL + '/' + codecId + '/encode'
+						}
+						return $.ajax({
+							type: 'POST',
+							url: url,
+							data: data,
+							dataType: 'text'
+						});
+					},
+					decode: function (codecId, variantId, data) {
+						var url = null;
+						if (variantId !== undefined) {
+							url = BASE_URL + '/' + codecId + '/' + variantId + '/decode'
+						} else {
+							url = BASE_URL + '/' + codecId + '/decode'
+						}
+						return $.ajax({
+							type: 'POST',
+							url: url,
+							data: data,
+							dataType: 'text'
+						});
+					}
+				};
+			}());
+		script.
+			var View = (function () {
+				var $codecs = [];
+
+				function findCodec(id) {
+					for (var i = 0; i < $codecs.length; ++i) {
+						var codec = $codecs[i];
+						if (codec.id === id) {
+							return codec;
+						}
+					}
+					return null;
+				}
+
+				function getSelectedCodecId() {
+					return $('#codec option:selected').attr('id');
+				}
+
+				function getSelectedCodec() {
+					return findCodec(getSelectedCodecId());
+				}
+
+				function getSelectedVariantId() {
+					return $('#variant option:selected').attr('id');
+				}
+
+				function setupCodecOptions() {
+					var options = [];
+					for (var i = 0; i < $codecs.length; ++i) {
+						var codec = $codecs[i];
+						var option = $('<option/>').attr('id', codec['id']).text(codec['name']);
+						options.push(option);
+					}
+					$('#codec').html(options).change();
+				}
+
+				function setupVariantOptions(codec) {
+					var variants = codec['variants'];
+					var options = [];
+					var disable = false;
+					if (variants.length > 0) {
+						for (var i = 0; i < variants.length; ++i) {
+							var variant = variants[i];
+							var option = $('<option/>').attr('id', variant['id']).text(variant['name']);
+							options.push(option);
+						}
+					} else {
+						disable = true;
+					}
+					$('#variant').prop("disabled", disable).html(options);
+				}
+
+				return {
+					loadCodecs: function () {
+						CodecsController.index().done(function (codecs) {
+							$codecs = codecs;
+							setupCodecOptions();
+						})
+					},
+					onCodecChanged: function () {
+						var codec = findCodec(getSelectedCodecId());
+						setupVariantOptions(codec);
+						$('#encode').prop("disabled", !codec['supportEncode']);
+						$('#decode').prop("disabled", !codec['supportDecode']);
+					},
+					onEncodeClicked: function() {
+						var codecId = getSelectedCodecId();
+						var variantId = getSelectedVariantId();
+						var data = $('#left').val();
+						CodecsController.encode(codecId, variantId, data).done(function (encoded) {
+							$('#right').val(encoded);
+						})
+					},
+					onDecodeClicked: function () {
+						var codecId = getSelectedCodecId();
+						var variantId = getSelectedVariantId();
+						var data = $('#right').val();
+						CodecsController.decode(codecId, variantId, data).done(function (decoded) {
+							$('#left').val(decoded);
+						})
+					}
+				}
+			}());
+
+			$(View.loadCodecs)
+	body
+		.container
+			header.text-center.mt-5
+				h1.display-4 编解码器工具
+		section.row
+			.col-10.mx-auto
+				form.form
+					.form-row
+						.form-group.col-sm-3.ml-auto
+							label(for='codec') 类型
+							select#codec.form-control(onchange='View.onCodecChanged()')
+						.form-group.col-sm-3.mr-auto
+							label(for='codec') 变体
+							select#variant.form-control
+					.form-row
+						.col-md-5.ml-auto
+							textarea#left.form-control.text-monospace(rows='15' placeholder='编码器输入／解码器输出')
+						.col-sm-auto.mx-auto.my-auto
+							button#decode.btn.btn-lg.btn-primary(type='button' onclick='View.onDecodeClicked()')
+								span.fas.fa-angle-left
+							= ' '
+							button#encode.btn.btn-lg.btn-primary(type='button' onclick='View.onEncodeClicked()')
+								span.fas.fa-angle-right
+						.col-md-5.mr-auto
+							textarea#right.form-control.text-monospace(rows='15' placeholder='编码器输出／解码器输入')
