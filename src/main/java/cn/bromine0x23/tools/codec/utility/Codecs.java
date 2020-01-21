@@ -1,12 +1,6 @@
 package cn.bromine0x23.tools.codec.utility;
 
-import cn.bromine0x23.tools.codec.codecs.Base32Codec;
-import cn.bromine0x23.tools.codec.codecs.Base64Codec;
-import cn.bromine0x23.tools.codec.codecs.Codec;
-import cn.bromine0x23.tools.codec.codecs.DigestCodec;
-import cn.bromine0x23.tools.codec.codecs.HexCodec;
-import cn.bromine0x23.tools.codec.codecs.MIMECodec;
-import cn.bromine0x23.tools.codec.codecs.URLCodec;
+import cn.bromine0x23.tools.codec.codecs.*;
 import lombok.experimental.UtilityClass;
 
 import java.util.Collection;
@@ -28,6 +22,7 @@ public class Codecs {
 		put(new MIMECodec());
 		put(new HexCodec());
 		put(new DigestCodec());
+		put(new StringSecurityCryptoCodec());
 		put(new Base32Codec());
 	}
 
