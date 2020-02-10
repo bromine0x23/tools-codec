@@ -156,9 +156,11 @@ html(lang='zh-CN')
 							textarea#left.form-control.text-monospace(rows='15' placeholder='编码器输入／解码器输出')
 						.col-sm-auto.mx-auto.my-auto
 							button#decode.btn.btn-lg.btn-primary(type='button' onclick='View.onDecodeClicked()')
-								span.fas.fa-angle-left
+								span.fas.fa-caret-left
+								= ' 解码'
 							= ' '
 							button#encode.btn.btn-lg.btn-primary(type='button' onclick='View.onEncodeClicked()')
-								span.fas.fa-angle-right
+								= '编码 '
+								span.fas.fa-caret-right
 						.col-md-5.mr-auto
 							textarea#right.form-control.text-monospace(rows='15' placeholder='编码器输出／解码器输入')
