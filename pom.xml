@@ -17,7 +17,7 @@
 		<logback.version>1.2.3</logback.version>
 		<lombok.version>1.18.10</lombok.version>
 		<junit-jupiter.version>5.4.0</junit-jupiter.version>
-		<spring-security.version>5.2.1.RELEASE</spring-security.version>
+		<spring-security.version>5.2.10.RELEASE</spring-security.version>
 
 		<webjars.bootstrap.version>4.4.1</webjars.bootstrap.version>
 		<webjars.font-awesome.version>5.12.0</webjars.font-awesome.version>
